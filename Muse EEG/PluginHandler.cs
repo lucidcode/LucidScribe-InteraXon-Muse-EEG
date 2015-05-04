@@ -22,23 +22,6 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
     public static String Algorithm;
     public static int Threshold;
 
-    private static double m_dblAttention;
-    private static double m_dblLastAttention;
-    private static double m_dblBlinkStrength;
-    private static double m_dblMeditation;
-    private static double m_dblLastMeditation;
-    private static double m_dblAlpha;
-    private static double m_dblLastAlpha;
-    private static double m_dblBeta;
-    private static double m_dblLastBeta;
-    private static double m_dblDelta;
-    private static double m_dblLastDelta;
-    private static double m_dblGamma;
-    private static double m_dblLastGamma;
-    private static double m_dblTheta;
-    private static double m_dblLastTheta;
-    private static double m_dblRaw;
-
     private static double ACC1;
     private static double ACC2;
     private static double ACC3;
@@ -47,6 +30,9 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
     private static double EEG2;
     private static double EEG3;
     private static double EEG4;
+
+    private static double Blink;
+    private static double JawClench;
 
     private static bool ClearDisplay;
     private static bool ClearHighscore;
@@ -100,7 +86,7 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
 
           if (musePath != "")
           {
-            museIO = Process.Start(musePath, "muse-io --preset 14 --device Muse --osc osc.tcp://localhost:5000");
+            museIO = Process.Start(musePath, "muse-io --preset 14 --osc osc.tcp://localhost:5000");
           }
 
           oscServer = new OscServer(TransportType.Tcp, IPAddress.Loopback, 5000);
@@ -144,9 +130,6 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
 
       OscMessage message = e.Message;
 
-      //Console.WriteLine(string.Format("\nMessage Received [{0}]: {1}", message.SourceEndPoint.Address, message.Address));
-      //Console.WriteLine(string.Format("Message contains {0} objects.", message.Data.Count));
-
       for (int i = 0; i < message.Data.Count; i++)
       {
         string dataString;
@@ -158,7 +141,6 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
         else
         {
           dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
-          
         }
 
         if (message.Address == "/muse/acc")
@@ -176,7 +158,7 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
             ACC3 = Convert.ToDouble(dataString);
           }
         }
-        if (message.Address == "/muse/eeg")
+        else if (message.Address == "/muse/eeg")
         {
           if (i == 0)
           {
@@ -195,23 +177,33 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
             EEG4 = Convert.ToDouble(dataString);
           }
         }
-        //Console.WriteLine(string.Format("[{0}]: {1}", i, dataString));
+        else if (message.Address == "/muse/elements/blink")
+        {
+            if (i == 1)
+            {
+                Blink = 888;
+            }
+            else
+            {
+                Blink = 0;
+            }
+        }
+        else if (message.Address == "/muse/elements/jaw_clench")
+        {
+            if (i == 1)
+            {
+                JawClench = 888;
+            }
+            else
+            {
+                JawClench = 0;
+            }
+        }
       }
-
-      //Console.WriteLine("Total Messages Received: {0}", sMessagesReceivedCount);
     }
 
     static void _thinkGearWrapper_ThinkGearChanged(object sender, EventArgs e)
     {
-      //m_dblLastAttention = e.ThinkGearState.Attention * 10;
-      //m_dblBlinkStrength = e.ThinkGearState.BlinkStrength * 10;
-      //m_dblLastMeditation = e.ThinkGearState.Meditation * 10;
-      //m_dblLastAlpha = ((e.ThinkGearState.Alpha1 / 100) + (e.ThinkGearState.Alpha2 / 100)) / 2;
-      //m_dblLastBeta = ((e.ThinkGearState.Beta1 / 100) + (e.ThinkGearState.Beta2 / 100)) / 2;
-      //m_dblLastDelta = e.ThinkGearState.Delta / 10000;
-      //m_dblLastGamma = ((e.ThinkGearState.Gamma1 / 100) + (e.ThinkGearState.Gamma2 / 100)) / 2;
-      //m_dblLastTheta = e.ThinkGearState.Theta / 1000;
-
       if (ClearDisplay)
       {
         ClearDisplay = false;
@@ -224,25 +216,11 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
         DisplayValue = 0;
       }
 
-      //m_dblRaw += e.ThinkGearState.Raw;
-
-      //if (e.ThinkGearState.Raw >= HighscoreValue)
-      //{
-      //  HighscoreValue = e.ThinkGearState.Raw;
-      //}
-
-      //if (e.ThinkGearState.Raw >= DisplayValue)
-      //{
-      //  DisplayValue = e.ThinkGearState.Raw;
-      //}
-
       if (ThinkGearChanged != null)
       {
         ThinkGearChanged(sender, e);
       }
     }
-
-
 
     public static void Dispose()
     {
@@ -279,104 +257,6 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
       return 0;
     }
 
-    public static Double GetAttention()
-    {
-      if (m_dblLastAttention > m_dblAttention)
-      {
-        m_dblAttention += (m_dblLastAttention / 100);
-      }
-      else
-      {
-        m_dblAttention -= (m_dblLastAttention / 100);
-      }
-      return m_dblAttention;
-    }
-
-    public static Double GetMeditation()
-    {
-      if (m_dblLastMeditation > m_dblMeditation)
-      {
-        m_dblMeditation += (m_dblLastMeditation / 100);
-      }
-      else
-      {
-        m_dblMeditation -= (m_dblLastMeditation / 100);
-      }
-      return m_dblMeditation;
-    }
-
-    public static Double GetAlpha()
-    {
-      if (m_dblLastAlpha > m_dblAlpha)
-      {
-        m_dblAlpha += (m_dblLastAlpha / 100);
-      }
-      else
-      {
-        m_dblAlpha -= (m_dblLastAlpha / 100);
-      }
-      return m_dblAlpha;
-    }
-
-    public static Double GetBeta()
-    {
-      if (m_dblLastBeta > m_dblBeta)
-      {
-        m_dblBeta += (m_dblLastBeta / 100);
-      }
-      else
-      {
-        m_dblBeta -= (m_dblLastBeta / 100);
-      }
-      return m_dblBeta;
-    }
-
-    public static Double GetDelta()
-    {
-      if (m_dblLastDelta > m_dblDelta)
-      {
-        m_dblDelta += (m_dblLastDelta / 100);
-      }
-      else
-      {
-        m_dblDelta -= (m_dblLastDelta / 100);
-      }
-      return m_dblDelta;
-    }
-
-    public static Double GetGamma()
-    {
-      if (m_dblLastGamma > m_dblGamma)
-      {
-        m_dblGamma += (m_dblLastGamma / 100);
-      }
-      else
-      {
-        m_dblGamma -= (m_dblLastGamma / 100);
-      }
-      return m_dblGamma;
-    }
-
-    public static Double GetTheta()
-    {
-      if (m_dblLastTheta > m_dblTheta)
-      {
-        m_dblTheta += (m_dblLastTheta / 100);
-      }
-      else
-      {
-        m_dblTheta -= (m_dblLastTheta / 100);
-      }
-      return m_dblTheta;
-    }
-
-    public static Double GetBlinkStrength()
-    {
-      return m_dblBlinkStrength;
-    }
-
-
-
     public static Double GetACC1()
     {
       return ACC1;
@@ -405,6 +285,14 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
     public static Double GetEEG4()
     {
       return EEG4;
+    }
+    public static Double GetBlink()
+    {
+      return Blink;
+    }
+    public static Double GetJawClench()
+    {
+      return JawClench;
     }
   }
 
@@ -606,6 +494,58 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
           if (dblValue > 999) { dblValue = 999; }
           if (dblValue < 0) { dblValue = 0; }
           return dblValue;
+        }
+      }
+    }
+  }
+
+  namespace Blink
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.LucidPluginBase
+    {
+      public override string Name
+      {
+        get { return "Muse Blink"; }
+      }
+      public override bool Initialize()
+      {
+        return Device.Initialize();
+      }
+      public override void Dispose()
+      {
+        Device.Dispose();
+      }
+      public override double Value
+      {
+        get
+        {
+          return Device.GetBlink();
+        }
+      }
+    }
+  }
+
+  namespace JawClench
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.LucidPluginBase
+    {
+      public override string Name
+      {
+        get { return "Muse Jaw Clench"; }
+      }
+      public override bool Initialize()
+      {
+        return Device.Initialize();
+      }
+      public override void Dispose()
+      {
+        Device.Dispose();
+      }
+      public override double Value
+      {
+        get
+        {
+          return Device.GetJawClench();
         }
       }
     }
