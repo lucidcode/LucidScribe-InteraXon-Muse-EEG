@@ -179,25 +179,25 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
         }
         else if (message.Address == "/muse/elements/blink")
         {
-            if (i == 1)
-            {
-                Blink = 888;
-            }
-            else
-            {
-                Blink = 0;
-            }
+          if (dataString == "1")
+          {
+              Blink = 888;
+          }
+          else
+          {
+              Blink = 0;
+          }
         }
         else if (message.Address == "/muse/elements/jaw_clench")
         {
-            if (i == 1)
-            {
-                JawClench = 888;
-            }
-            else
-            {
-                JawClench = 0;
-            }
+          if (dataString == "1")
+          {
+              JawClench = 888;
+          }
+          else
+          {
+              JawClench = 0;
+          }
         }
       }
     }

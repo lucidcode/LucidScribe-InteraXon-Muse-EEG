@@ -298,37 +298,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_001B0B78CA7C6A9D0F8FD9AD7BEFFCF8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C30F1F86A05744CBDA9F4C3D17FC818B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3A225E27AB09916A3FFEECC89E17F431"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5C41A0591BBA4D76A8D782B17D976020"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_34E3AF5D7D83413AB003FF48C419069A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_10840FFF9970423B9BE9D1DD9DA197E0"
+        "OwnerKey" = "8:_5C5B3E6406FA4EF3B0195DAC6651BBE6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -340,7 +310,37 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5C5B3E6406FA4EF3B0195DAC6651BBE6"
+        "OwnerKey" = "8:_10840FFF9970423B9BE9D1DD9DA197E0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_34E3AF5D7D83413AB003FF48C419069A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5C41A0591BBA4D76A8D782B17D976020"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3A225E27AB09916A3FFEECC89E17F431"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C30F1F86A05744CBDA9F4C3D17FC818B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_001B0B78CA7C6A9D0F8FD9AD7BEFFCF8"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -440,7 +440,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:3.5.30729   "
+                "FrameworkVersion" = "8:3.5.30729    "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -1565,15 +1565,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Lucid Scribe Muse EEG"
-        "ProductCode" = "8:{3C3D78CF-BD56-4A03-BA2F-E7D92EA5F8CF}"
-        "PackageCode" = "8:{92F54711-6A75-4A63-AD40-AC3ADB8030D2}"
+        "ProductCode" = "8:{8FC07DA5-6576-420B-9E14-C796100293C8}"
+        "PackageCode" = "8:{6C41480C-6EAD-4E7F-B8DA-33E408F2B30B}"
         "UpgradeCode" = "8:{258972B5-4E24-4878-B329-441E88F6B0E9}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.9.3"
+        "ProductVersion" = "8:0.9.4"
         "Manufacturer" = "8:lucidcode"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.lucidcode.com/Contact"
