@@ -44,7 +44,10 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
     private static OscServer oscServer;
     private static Boolean disposing = false;
 
-    public static EventHandler<EventArgs> ThinkGearChanged;
+    public static EventHandler<EventArgs> FFT0Received;
+    public static EventHandler<EventArgs> FFT1Received;
+    public static EventHandler<EventArgs> FFT2Received;
+    public static EventHandler<EventArgs> FFT3Received;
 
     private static readonly string AliveMethod = "/osctest/alive";
     private static readonly string TestMethod = "/osctest/test";
@@ -130,96 +133,110 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
 
       OscMessage message = e.Message;
 
-      for (int i = 0; i < message.Data.Count; i++)
+      if (message.Address == "/muse/acc" | message.Address == "/muse/eeg" | message.Address == "/muse/elements/blink" | message.Address == "/muse/elements/jaw_clench")
       {
-        string dataString;
+        for (int i = 0; i < message.Data.Count; i++)
+        {
+          string dataString;
 
-        if (message.Data[i] == null)
-        {
-          dataString = "Nil";
-        }
-        else
-        {
-          dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
-        }
+          if (message.Data[i] == null)
+          {
+            dataString = "Nil";
+          }
+          else
+          {
+            dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
+          }
 
-        if (message.Address == "/muse/acc")
-        {
-          if (i == 0)
+          if (message.Address == "/muse/acc")
           {
-            ACC1 = Convert.ToDouble(dataString);
+            if (i == 0)
+            {
+              ACC1 = Convert.ToDouble(dataString);
+            }
+            if (i == 1)
+            {
+              ACC2 = Convert.ToDouble(dataString);
+            }
+            if (i == 3)
+            {
+              ACC3 = Convert.ToDouble(dataString);
+            }
           }
-          if (i == 1)
+          else if (message.Address == "/muse/eeg")
           {
-            ACC2 = Convert.ToDouble(dataString);
+            if (i == 0)
+            {
+              EEG1 = Convert.ToDouble(dataString);
+            }
+            if (i == 1)
+            {
+              EEG2 = Convert.ToDouble(dataString);
+            }
+            if (i == 2)
+            {
+              EEG3 = Convert.ToDouble(dataString);
+            }
+            if (i == 3)
+            {
+              EEG4 = Convert.ToDouble(dataString);
+            }
           }
-          if (i == 3)
+          else if (message.Address == "/muse/elements/blink")
           {
-            ACC3 = Convert.ToDouble(dataString);
-          }
-        }
-        else if (message.Address == "/muse/eeg")
-        {
-          if (i == 0)
-          {
-            EEG1 = Convert.ToDouble(dataString);
-          }
-          if (i == 1)
-          {
-            EEG2 = Convert.ToDouble(dataString);
-          }
-          if (i == 2)
-          {
-            EEG3 = Convert.ToDouble(dataString);
-          }
-          if (i == 3)
-          {
-            EEG4 = Convert.ToDouble(dataString);
-          }
-        }
-        else if (message.Address == "/muse/elements/blink")
-        {
-          if (dataString == "1")
-          {
+            if (dataString == "1")
+            {
               Blink = 888;
-          }
-          else
-          {
+            }
+            else
+            {
               Blink = 0;
+            }
           }
-        }
-        else if (message.Address == "/muse/elements/jaw_clench")
-        {
-          if (dataString == "1")
+          else if (message.Address == "/muse/elements/jaw_clench")
           {
+            if (dataString == "1")
+            {
               JawClench = 888;
-          }
-          else
-          {
+            }
+            else
+            {
               JawClench = 0;
+            }
           }
         }
       }
-    }
 
-    static void _thinkGearWrapper_ThinkGearChanged(object sender, EventArgs e)
-    {
-      if (ClearDisplay)
+      if (message.Address == "/muse/dsp/elements/raw_fft0")
       {
-        ClearDisplay = false;
-        DisplayValue = 0;
+        if (FFT0Received != null)
+        {
+          FFT0Received(sender, e);
+        }
+      }
+      else if (message.Address == "/muse/dsp/elements/raw_fft1")
+      {
+        if (FFT1Received != null)
+        {
+          FFT1Received(sender, e);
+        }
+      }
+      else if (message.Address == "/muse/dsp/elements/raw_fft2")
+      {
+        if (FFT2Received != null)
+        {
+          FFT2Received(sender, e);
+        }
+      }
+      else if (message.Address == "/muse/dsp/elements/raw_fft3")
+      {
+        if (FFT3Received != null)
+        {
+          FFT3Received(sender, e);
+        }
       }
 
-      if (ClearHighscore)
-      {
-        ClearHighscore = false;
-        DisplayValue = 0;
-      }
 
-      if (ThinkGearChanged != null)
-      {
-        ThinkGearChanged(sender, e);
-      }
     }
 
     public static void Dispose()
@@ -551,115 +568,509 @@ namespace lucidcode.LucidScribe.Plugin.InteraXon.Muse
     }
   }
 
-  //namespace RAW
-  //{
-  //  public class PluginHandler : lucidcode.LucidScribe.Interface.ILluminatedPlugin
-  //  {
-  //    public string Name
-  //    {
-  //      get { return "Muse RAW"; }
-  //    }
-  //    public bool Initialize()
-  //    {
-  //      bool initialized = Device.Initialize();
-  //      Device.ThinkGearChanged += _thinkGearWrapper_ThinkGearChanged;
-  //      return initialized;
-  //    }
+  namespace FFT0
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.ILluminatedPlugin
+    {
+      public string Name
+      {
+        get { return "Muse FFT 1"; }
+      }
+      public bool Initialize()
+      {
+        bool initialized = Device.Initialize();
+        Device.FFT0Received += FFT0Received;
+        return initialized;
+      }
 
-  //    public event Interface.SenseHandler Sensed;
-  //    public void _thinkGearWrapper_ThinkGearChanged(object sender, Object e)
-  //    {
-  //      if (ClearTicks)
-  //      {
-  //        ClearTicks = false;
-  //        TickCount = "";
-  //      }
-  //      //TickCount += e.ThinkGearState.Raw + ",";
+      public event Interface.SenseHandler Sensed;
+      public void FFT0Received(object sender, Object e)
+      {
+        
+        if (ClearTicks)
+        {
+          ClearTicks = false;
+          TickCount = "";
+        }
+        if (ClearBuffer)
+        {
+          ClearBuffer = false;
+          BufferData = "";
+        }
 
-  //      if (ClearBuffer)
-  //      {
-  //        ClearBuffer = false;
-  //        BufferData = "";
-  //      }
-  //      //BufferData += e.ThinkGearState.Raw + ",";
-  //    }
+        OscMessage message = ((OscMessageReceivedEventArgs)e).Message;
+        for (int i = 0; i < message.Data.Count; i++)
+        {
+          string dataString;
+          if (message.Data[i] == null)
+          {
+            dataString = "Nil";
+          }
+          else
+          {
+            dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
+          }
+          int val = Convert.ToInt32(Convert.ToDouble(dataString) * 300);
+          TickCount += val + ",";
+          BufferData += val + ",";
+        }
 
-  //    public void Dispose()
-  //    {
-  //      Device.ThinkGearChanged -= _thinkGearWrapper_ThinkGearChanged;
-  //      Device.Dispose();
-  //    }
+      }
 
-  //    public Boolean isEnabled = false;
-  //    public Boolean Enabled
-  //    {
-  //      get
-  //      {
-  //        return isEnabled;
-  //      }
-  //      set
-  //      {
-  //        isEnabled = value;
-  //      }
-  //    }
+      public void Dispose()
+      {
+        Device.FFT0Received -= FFT0Received;
+        Device.Dispose();
+      }
 
-  //    public Color PluginColor = Color.White;
-  //    public Color Color
-  //    {
-  //      get
-  //      {
-  //        return Color;
-  //      }
-  //      set
-  //      {
-  //        Color = value;
-  //      }
-  //    }
+      public Boolean isEnabled = false;
+      public Boolean Enabled
+      {
+        get
+        {
+          return isEnabled;
+        }
+        set
+        {
+          isEnabled = value;
+        }
+      }
 
-  //    private Boolean ClearTicks = false;
-  //    public String TickCount = "";
-  //    public String Ticks
-  //    {
-  //      get
-  //      {
-  //        ClearTicks = true;
-  //        return TickCount;
-  //      }
-  //      set
-  //      {
-  //        TickCount = value;
-  //      }
-  //    }
+      public Color PluginColor = Color.White;
+      public Color Color
+      {
+        get
+        {
+          return Color;
+        }
+        set
+        {
+          Color = value;
+        }
+      }
 
-  //    private Boolean ClearBuffer = false;
-  //    public String BufferData = "";
-  //    public String Buffer
-  //    {
-  //      get
-  //      {
-  //        ClearBuffer = true;
-  //        return BufferData;
-  //      }
-  //      set
-  //      {
-  //        BufferData = value;
-  //      }
-  //    }
+      private Boolean ClearTicks = false;
+      public String TickCount = "";
+      public String Ticks
+      {
+        get
+        {
+          ClearTicks = true;
+          return TickCount;
+        }
+        set
+        {
+          TickCount = value;
+        }
+      }
 
-  //    int lastHour;
-  //    public int LastHour
-  //    {
-  //      get
-  //      {
-  //        return lastHour;
-  //      }
-  //      set
-  //      {
-  //        lastHour = value;
-  //      }
-  //    }
-  //  }
-  //}
+      private Boolean ClearBuffer = false;
+      public String BufferData = "";
+      public String Buffer
+      {
+        get
+        {
+          ClearBuffer = true;
+          return BufferData;
+        }
+        set
+        {
+          BufferData = value;
+        }
+      }
+
+      int lastHour;
+      public int LastHour
+      {
+        get
+        {
+          return lastHour;
+        }
+        set
+        {
+          lastHour = value;
+        }
+      }
+    }
+  }
+
+  namespace FFT1
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.ILluminatedPlugin
+    {
+      public string Name
+      {
+        get { return "Muse FFT 2"; }
+      }
+      public bool Initialize()
+      {
+        bool initialized = Device.Initialize();
+        Device.FFT1Received += FFT1Received;
+        return initialized;
+      }
+
+      public event Interface.SenseHandler Sensed;
+      public void FFT1Received(object sender, Object e)
+      {
+
+        if (ClearTicks)
+        {
+          ClearTicks = false;
+          TickCount = "";
+        }
+        if (ClearBuffer)
+        {
+          ClearBuffer = false;
+          BufferData = "";
+        }
+
+        OscMessage message = ((OscMessageReceivedEventArgs)e).Message;
+        for (int i = 0; i < message.Data.Count; i++)
+        {
+          string dataString;
+          if (message.Data[i] == null)
+          {
+            dataString = "Nil";
+          }
+          else
+          {
+            dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
+          }
+          int val = Convert.ToInt32(Convert.ToDouble(dataString) * 300);
+          TickCount += val + ",";
+          BufferData += val + ",";
+        }
+
+      }
+
+      public void Dispose()
+      {
+        Device.FFT1Received -= FFT1Received;
+        Device.Dispose();
+      }
+
+      public Boolean isEnabled = false;
+      public Boolean Enabled
+      {
+        get
+        {
+          return isEnabled;
+        }
+        set
+        {
+          isEnabled = value;
+        }
+      }
+
+      public Color PluginColor = Color.White;
+      public Color Color
+      {
+        get
+        {
+          return Color;
+        }
+        set
+        {
+          Color = value;
+        }
+      }
+
+      private Boolean ClearTicks = false;
+      public String TickCount = "";
+      public String Ticks
+      {
+        get
+        {
+          ClearTicks = true;
+          return TickCount;
+        }
+        set
+        {
+          TickCount = value;
+        }
+      }
+
+      private Boolean ClearBuffer = false;
+      public String BufferData = "";
+      public String Buffer
+      {
+        get
+        {
+          ClearBuffer = true;
+          return BufferData;
+        }
+        set
+        {
+          BufferData = value;
+        }
+      }
+
+      int lastHour;
+      public int LastHour
+      {
+        get
+        {
+          return lastHour;
+        }
+        set
+        {
+          lastHour = value;
+        }
+      }
+    }
+  }
+
+  namespace FFT2
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.ILluminatedPlugin
+    {
+      public string Name
+      {
+        get { return "Muse FFT 3"; }
+      }
+      public bool Initialize()
+      {
+        bool initialized = Device.Initialize();
+        Device.FFT2Received += FFT2Received;
+        return initialized;
+      }
+
+      public event Interface.SenseHandler Sensed;
+      public void FFT2Received(object sender, Object e)
+      {
+
+        if (ClearTicks)
+        {
+          ClearTicks = false;
+          TickCount = "";
+        }
+        if (ClearBuffer)
+        {
+          ClearBuffer = false;
+          BufferData = "";
+        }
+
+        OscMessage message = ((OscMessageReceivedEventArgs)e).Message;
+        for (int i = 0; i < message.Data.Count; i++)
+        {
+          string dataString;
+          if (message.Data[i] == null)
+          {
+            dataString = "Nil";
+          }
+          else
+          {
+            dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
+          }
+          int val = Convert.ToInt32(Convert.ToDouble(dataString) * 300);
+          TickCount += val + ",";
+          BufferData += val + ",";
+        }
+
+      }
+
+      public void Dispose()
+      {
+        Device.FFT0Received -= FFT2Received;
+        Device.Dispose();
+      }
+
+      public Boolean isEnabled = false;
+      public Boolean Enabled
+      {
+        get
+        {
+          return isEnabled;
+        }
+        set
+        {
+          isEnabled = value;
+        }
+      }
+
+      public Color PluginColor = Color.White;
+      public Color Color
+      {
+        get
+        {
+          return Color;
+        }
+        set
+        {
+          Color = value;
+        }
+      }
+
+      private Boolean ClearTicks = false;
+      public String TickCount = "";
+      public String Ticks
+      {
+        get
+        {
+          ClearTicks = true;
+          return TickCount;
+        }
+        set
+        {
+          TickCount = value;
+        }
+      }
+
+      private Boolean ClearBuffer = false;
+      public String BufferData = "";
+      public String Buffer
+      {
+        get
+        {
+          ClearBuffer = true;
+          return BufferData;
+        }
+        set
+        {
+          BufferData = value;
+        }
+      }
+
+      int lastHour;
+      public int LastHour
+      {
+        get
+        {
+          return lastHour;
+        }
+        set
+        {
+          lastHour = value;
+        }
+      }
+    }
+  }
+
+  namespace FFT3
+  {
+    public class PluginHandler : lucidcode.LucidScribe.Interface.ILluminatedPlugin
+    {
+      public string Name
+      {
+        get { return "Muse FFT 4"; }
+      }
+      public bool Initialize()
+      {
+        bool initialized = Device.Initialize();
+        Device.FFT3Received += FFT3Received;
+        return initialized;
+      }
+
+      public event Interface.SenseHandler Sensed;
+      public void FFT3Received(object sender, Object e)
+      {
+
+        if (ClearTicks)
+        {
+          ClearTicks = false;
+          TickCount = "";
+        }
+        if (ClearBuffer)
+        {
+          ClearBuffer = false;
+          BufferData = "";
+        }
+
+        OscMessage message = ((OscMessageReceivedEventArgs)e).Message;
+        for (int i = 0; i < message.Data.Count; i++)
+        {
+          string dataString;
+          if (message.Data[i] == null)
+          {
+            dataString = "Nil";
+          }
+          else
+          {
+            dataString = (message.Data[i] is byte[] ? BitConverter.ToString((byte[])message.Data[i]) : message.Data[i].ToString());
+          }
+          int val = Convert.ToInt32(Convert.ToDouble(dataString) * 300);
+          TickCount += val + ",";
+          BufferData += val + ",";
+        }
+
+      }
+
+      public void Dispose()
+      {
+        Device.FFT3Received -= FFT3Received;
+        Device.Dispose();
+      }
+
+      public Boolean isEnabled = false;
+      public Boolean Enabled
+      {
+        get
+        {
+          return isEnabled;
+        }
+        set
+        {
+          isEnabled = value;
+        }
+      }
+
+      public Color PluginColor = Color.White;
+      public Color Color
+      {
+        get
+        {
+          return Color;
+        }
+        set
+        {
+          Color = value;
+        }
+      }
+
+      private Boolean ClearTicks = false;
+      public String TickCount = "";
+      public String Ticks
+      {
+        get
+        {
+          ClearTicks = true;
+          return TickCount;
+        }
+        set
+        {
+          TickCount = value;
+        }
+      }
+
+      private Boolean ClearBuffer = false;
+      public String BufferData = "";
+      public String Buffer
+      {
+        get
+        {
+          ClearBuffer = true;
+          return BufferData;
+        }
+        set
+        {
+          BufferData = value;
+        }
+      }
+
+      int lastHour;
+      public int LastHour
+      {
+        get
+        {
+          return lastHour;
+        }
+        set
+        {
+          lastHour = value;
+        }
+      }
+    }
+  }
 
   //namespace RapidEyeMovement
   //{
